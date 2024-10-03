@@ -1,6 +1,7 @@
 // BookRide.jsx
 'use client';
 import { useUserStore } from "@/store/userstore";
+import axios from "axios";
 import { useState } from "react";
 
 
@@ -18,6 +19,15 @@ export default function BookRide() {
       dropoffLocation,
       rideType,
     };
+
+    axios.post("/api/rides", rideDetails)
+    .then((response) => {
+      console.log(response.data);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+    
 
     console.log("Booking ride with details: ", rideDetails);
     // Send rideDetails to backend
@@ -63,8 +73,8 @@ export default function BookRide() {
               onChange={(e) => setRideType(e.target.value)}
               className="w-full p-3 rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-blue-500"
             >
-              <option value="Bike">Bike</option>
-              <option value="Auto">Auto</option>
+              <option value="bike">Bike</option>
+              <option value="auto">Auto</option>
             </select>
           </div>
 
