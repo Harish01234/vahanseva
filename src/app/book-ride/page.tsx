@@ -1,15 +1,19 @@
 // BookRide.jsx
 'use client';
+import { useUserStore } from "@/store/userstore";
 import { useState } from "react";
+
 
 export default function BookRide() {
   const [pickupLocation, setPickupLocation] = useState("");
   const [dropoffLocation, setDropoffLocation] = useState("");
   const [rideType, setRideType] = useState("Bike");
+  const {user}=useUserStore();
 
   const handleSubmit = (e : React.FormEvent) => {
     e.preventDefault();
     const rideDetails = {
+      customerId: user?.id,
       pickupLocation,
       dropoffLocation,
       rideType,

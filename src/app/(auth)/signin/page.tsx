@@ -1,12 +1,19 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation'; // Import useRouter
+import { useUserStore } from '@/store/userstore';
 
 const Login = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const router = useRouter(); // Initialize useRouter
+    const { user, setUser } = useUserStore(); // Access user store
+
+    // Log the updated user state after it changes
+    useEffect(() => {
+        console.log("Updated user state:", user);
+    }, [user]);  // useEffect will run every time 'user' is updated
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -17,29 +24,34 @@ const Login = () => {
         };
 
         try {
-            const response = await axios.post('/api/signin', userData);
-            console.log(response);
+            await axios.post('/api/signin', userData).then((response) => {
+                const role = response.data.role;  // Get the user's role
+                console.log(response.data);
 
-            // Assuming your API sends the user and role in the response data
-            // const { user } = response.data; // Adjust this based on your actual response structure
-            // console.log("user:", user);
-            
-            const role =await response.data.role // Get the user's role
+                const newUser = {
+                    id: response.data.userid,
+                    name: response.data.name || 'John Doe',  // Adjust based on response
+                    email: response.data.email || email,     // Adjust based on response
+                };
+                
+                setUser(newUser); // Set the user in Zustand store
 
-            // Redirect based on role
-            if (role === 'rider') {
-                router.push('/dashboard'); // Redirect to rider dashboard
-            } else if (role === 'customer') {
-                router.push('/'); // Redirect to customer home
-            } else {
-                console.error("Unknown role:", role);
-            }
+                // Redirect based on role
+                if (role === 'rider') {
+                    router.push('/dashboard'); // Redirect to rider dashboard
+                } else if (role === 'customer') {
+                    router.push('/'); // Redirect to customer home
+                } else {
+                    console.error("Unknown role:", role);
+                }
+            }).catch((error) => {
+                console.error("Login failed:", error);
+            });
         } catch (error) {
             console.error("Login error:", error);
-            // Optionally handle error display here
         }
 
-        // Optionally, you can reset the form fields
+        // Optionally, reset the form fields
         setEmail('');
         setPassword('');
     };

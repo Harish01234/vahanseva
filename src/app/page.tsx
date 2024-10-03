@@ -1,6 +1,12 @@
 // Home.jsx
+'use client';
+import { useUserStore } from "@/store/userstore";
 
 export default function Home() {
+
+  const {user}=useUserStore()
+  console.log("user",user);
+  
   return (
     <div className="bg-black min-h-screen flex flex-col justify-center items-center">
       {/* Header Section */}

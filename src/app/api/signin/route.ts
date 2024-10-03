@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 
         // Create JWT token
         const tokenData = {
-            userid: user._id,
+            
             email: user.email,
             username: user.username,
             role: user.role, // Ensure to include the role in the token if needed
@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
         const token = jwt.sign(tokenData, process.env.TOKEN_SECRET!, { expiresIn: '1h' });
 
         const response = NextResponse.json({
+            userid: user._id,
             message: 'Logged in successfully',
             success: true,
             role: user.role, // Include user role in the response
