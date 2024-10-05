@@ -1,36 +1,41 @@
-// BookRide.jsx
 'use client';
 import { useUserStore } from "@/store/userstore";
 import axios from "axios";
 import { useState } from "react";
-
+import { useRouter } from 'next/navigation';
 
 export default function BookRide() {
   const [pickupLocation, setPickupLocation] = useState("");
   const [dropoffLocation, setDropoffLocation] = useState("");
   const [rideType, setRideType] = useState("bike");
-  const {user}=useUserStore();
+  const { user } = useUserStore();
+  const router = useRouter(); 
 
-  const handleSubmit = (e : React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check if user id is defined
+    if (!user?.id) {
+      console.error("User ID is not available.");
+      return;
+    }
+
     const rideDetails = {
-      customerId: user?.id,
+      customerId: user.id,
       pickupLocation,
       dropoffLocation,
       rideType,
     };
 
-    axios.post("/api/rides", rideDetails)
-    .then((response) => {
-      console.log(response.data);
-    })
-    .catch((error) => {
-      console.error(error);
-    });
-    
-
-    console.log("Booking ride with details: ", rideDetails);
-    // Send rideDetails to backend
+    try {
+      const response = await axios.post("/api/rides", rideDetails);
+      console.log("Ride booked successfully:", response.data);
+      
+      // Redirect after successful booking
+      router.push(`/user/${user.id}`);
+    } catch (error) {
+      console.error("Error booking ride:", error);
+    }
   };
 
   return (
