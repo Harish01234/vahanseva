@@ -8,7 +8,7 @@ import { useState } from "react";
 export default function BookRide() {
   const [pickupLocation, setPickupLocation] = useState("");
   const [dropoffLocation, setDropoffLocation] = useState("");
-  const [rideType, setRideType] = useState("Bike");
+  const [rideType, setRideType] = useState("bike");
   const {user}=useUserStore();
 
   const handleSubmit = (e : React.FormEvent) => {
