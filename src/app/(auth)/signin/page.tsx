@@ -57,13 +57,13 @@ const Login = () => {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gray-50"> {/* Normal background */}
-            <div className="bg-white rounded-lg shadow-lg p-8 max-w-sm w-full">
-                <h2 className="text-2xl font-bold text-center mb-6">Sign In</h2>
+        <div className="flex items-center justify-center min-h-screen bg-black"> {/* Black background */}
+            <div className="bg-gray-800 rounded-lg shadow-lg p-8 max-w-sm w-full">
+                <h2 className="text-3xl font-bold text-center text-white mb-6">Sign In</h2>
                 <form onSubmit={handleSubmit}>
                     <div className="grid grid-cols-1 gap-4">
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
+                            <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email</label>
                             <input
                                 type="email"
                                 id="email"
@@ -71,12 +71,12 @@ const Login = () => {
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:outline-none focus:ring focus:ring-blue-300"
+                                className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm p-2 bg-gray-700 text-white focus:outline-none focus:ring focus:ring-blue-500"
                                 placeholder="you@example.com"
                             />
                         </div>
                         <div>
-                            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
+                            <label htmlFor="password" className="block text-sm font-medium text-gray-300">Password</label>
                             <input
                                 type="password"
                                 id="password"
@@ -84,20 +84,20 @@ const Login = () => {
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 focus:outline-none focus:ring focus:ring-blue-300"
+                                className="mt-1 block w-full border border-gray-600 rounded-md shadow-sm p-2 bg-gray-700 text-white focus:outline-none focus:ring focus:ring-blue-500"
                                 placeholder="••••••••"
                             />
                         </div>
                         <button
                             type="submit"
-                            className="mt-4 bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-300"
+                            className="mt-4 bg-blue-600 text-white font-bold py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring focus:ring-blue-500"
                         >
                             Sign In
                         </button>
                     </div>
                 </form>
-                <p className="mt-4 text-center text-sm text-gray-600">
-                    Don't have an account? <a href="/signup" className="text-blue-600 hover:underline">Sign up</a>
+                <p className="mt-4 text-center text-sm text-gray-400">
+                    Don&apos;t have an account? <a href="/signup" className="text-blue-500 hover:underline">Sign up</a>
                 </p>
             </div>
         </div>
