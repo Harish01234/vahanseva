@@ -40,6 +40,7 @@ export async function POST(request: NextRequest) {
     }
 }
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export async function GET(request: NextRequest) {
     try {
         const url = new URL(request.url);
