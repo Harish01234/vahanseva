@@ -1,6 +1,55 @@
-import React from 'react';
+'use client';
 
-const RiderDashboard = () => {
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import { useUserStore } from '@/store/userstore';
+
+interface User {
+    id: string;
+    name: string;
+    email: string;
+}
+
+interface Ride {
+    id: string;
+    pickupLocation: string;
+    destination: string;
+    status: string;
+    completedAt?: string;
+}
+
+interface ApiResponse {
+    currentRide: Ride | null;
+    pastRides: Ride[];
+}
+
+const RiderDashboard: React.FC = () => {
+    const { user } = useUserStore(); 
+    const [currentRide, setCurrentRide] = useState<Ride | null>(null);
+    const [pastRides, setPastRides] = useState<Ride[]>([]);
+
+    useEffect(() => {
+        if (user) {
+            if (user.id) {
+                console.log("Fetching rides for rider:", user.id);
+                
+                axios.post('/api/riderrides', { riderId: user.id })
+                    .then((response) => {
+                        console.log("API response:", response.data); // Log the API response
+                        const { currentRide, pastRides }: ApiResponse = response.data;
+
+                        setCurrentRide(currentRide);
+                        setPastRides(pastRides);
+                    })
+                    .catch((error) => {
+                        console.error('Failed to fetch rides:', error.response?.data || error.message);
+                    });
+            } else {
+                console.warn("User ID is not available."); // Log only if user is defined but ID is not
+            }
+        }
+    }, [user]);
+
     return (
         <div className="flex flex-col lg:flex-row h-screen bg-gradient-to-r from-black to-gray-900">
             {/* Sidebar */}
@@ -28,7 +77,7 @@ const RiderDashboard = () => {
             <div className="flex-1 p-6 lg:p-8">
                 {/* Header */}
                 <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl lg:text-4xl text-white font-bold">Welcome, Rider!</h1>
+                    <h1 className="text-3xl lg:text-4xl text-white font-bold">Welcome, {user?.name || 'Rider'}!</h1>
                     <button className="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-500 transition duration-300">
                         Notifications
                     </button>
@@ -36,28 +85,33 @@ const RiderDashboard = () => {
 
                 {/* Current Rides Section */}
                 <div className="bg-gray-700 p-6 rounded-lg shadow-lg mb-8">
-                    <h2 className="text-2xl text-white mb-4">Current Rides</h2>
-                    {/* Example Ride Card */}
-                    <div className="bg-gray-600 p-4 rounded-lg mb-4 shadow transition duration-300 hover:bg-gray-500">
-                        <h3 className="text-xl text-white font-semibold">Ride to Downtown</h3>
-                        <p className="text-gray-300">Pickup Location: Central Park</p>
-                        <p className="text-gray-300">Status: En Route</p>
-                    </div>
-                    <div className="bg-gray-600 p-4 rounded-lg mb-4 shadow transition duration-300 hover:bg-gray-500">
-                        <h3 className="text-xl text-white font-semibold">Ride to Airport</h3>
-                        <p className="text-gray-300">Pickup Location: City Center</p>
-                        <p className="text-gray-300">Status: Pending</p>
-                    </div>
+                    <h2 className="text-2xl text-white mb-4">Current Ride</h2>
+                    {currentRide ? (
+                        <div className="bg-gray-600 p-4 rounded-lg mb-4 shadow transition duration-300 hover:bg-gray-500">
+                            <h3 className="text-xl text-white font-semibold">{currentRide.destination}</h3>
+                            <p className="text-gray-300">Pickup Location: {currentRide.pickupLocation}</p>
+                            <p className="text-gray-300">Status: {currentRide.status}</p>
+                        </div>
+                    ) : (
+                        <p className="text-gray-300">No current rides available.</p>
+                    )}
                 </div>
 
                 {/* Past Rides Section */}
                 <div className="bg-gray-700 p-6 rounded-lg shadow-lg">
                     <h2 className="text-2xl text-white mb-4">Past Rides</h2>
-                    <div className="bg-gray-600 p-4 rounded-lg mb-4 shadow transition duration-300 hover:bg-gray-500">
-                        <h3 className="text-xl text-white font-semibold">Ride to Mall</h3>
-                        <p className="text-gray-300">Date: October 1, 2024</p>
-                        <p className="text-gray-300">Status: Completed</p>
-                    </div>
+                    {pastRides.length > 0 ? (
+                        pastRides.map((ride) => (
+                            <div key={ride.id} className="bg-gray-600 p-4 rounded-lg mb-4 shadow transition duration-300 hover:bg-gray-500">
+                                <h3 className="text-xl text-white font-semibold">{ride.destination}</h3>
+                                <p className="text-gray-300">Pickup Location: {ride.pickupLocation}</p>
+                                <p className="text-gray-300">Date: {new Date(ride.completedAt || '').toLocaleDateString()}</p>
+                                <p className="text-gray-300">Status: Completed</p>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-gray-300">No past rides available.</p>
+                    )}
                 </div>
             </div>
         </div>

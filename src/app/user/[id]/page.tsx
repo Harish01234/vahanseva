@@ -50,6 +50,12 @@ const PendingRides = () => {
         );
     }
 
+    const assinrider=()=>{
+        console.log("assigning rider");
+        const response = axios.post('/api/rides/assign', {rideId: 'rideId'})
+    }
+
+
     return (
         <div className="bg-black min-h-screen p-5 md:p-10">
             <h2 className="text-white text-3xl font-bold mb-6 text-center">Pending Rides</h2>

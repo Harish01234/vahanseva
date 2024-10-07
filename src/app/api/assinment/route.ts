@@ -129,7 +129,8 @@ export async function POST(request: NextRequest) {
         }
 
         console.log(`Closest rider found: ${closestRider.rider._id}, distance: ${closestRider.distance} km`);
-
+            //update
+          await RideModel.findByIdAndUpdate(rideId, { riderId: closestRider.rider._id, status: 'Assigned' });  
         return NextResponse.json({
             message: 'Closest rider fetched successfully',
             rider: closestRider.rider,
