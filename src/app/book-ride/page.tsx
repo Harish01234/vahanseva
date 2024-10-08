@@ -29,13 +29,21 @@ export default function BookRide() {
 
     try {
       const response = await axios.post("/api/rides", rideDetails);
-      console.log("Ride booked successfully:", response.data);
+      
+      console.log("Ride booked successfully:", response.data.ride._id);
+
+      const response2 = await axios.post('/api/assinment', {rideId: response.data.ride._id});
+      console.log("Ride assigned successfully:", response2.data);
+      
+      // Update user store
       
       // Redirect after successful booking
       router.push(`/user/${user.id}`);
     } catch (error) {
       console.error("Error booking ride:", error);
     }
+
+    
   };
 
   return (
