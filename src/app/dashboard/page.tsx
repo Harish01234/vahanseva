@@ -4,51 +4,63 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useUserStore } from '@/store/userstore';
 
-interface User {
-    id: string;
-    name: string;
-    email: string;
-}
-
+// Updated Ride interface to include _id
 interface Ride {
-    id: string;
+    _id: string; // Use _id to match your API response
     pickupLocation: string;
-    destination: string;
+    dropoffLocation: string;
+    rideType: string;
     status: string;
-    completedAt?: string;
+    bookedAt: string;
 }
 
 interface ApiResponse {
-    currentRide: Ride | null;
+    currentRides: Ride[];
     pastRides: Ride[];
 }
 
 const RiderDashboard: React.FC = () => {
     const { user } = useUserStore(); 
-    const [currentRide, setCurrentRide] = useState<Ride | null>(null);
+    const [currentRides, setCurrentRides] = useState<Ride[]>([]);
     const [pastRides, setPastRides] = useState<Ride[]>([]);
 
     useEffect(() => {
-        if (user) {
-            if (user.id) {
-                console.log("Fetching rides for rider:", user.id);
-                
-                axios.post('/api/riderrides', { riderId: user.id })
-                    .then((response) => {
-                        console.log("API response:", response.data); // Log the API response
-                        const { currentRide, pastRides }: ApiResponse = response.data;
+        if (user?.id) {
+            console.log("Fetching rides for rider:", user.id);
+            axios.post('/api/riderrides', { riderId: user.id })
+                .then((response) => {
+                    console.log("API response:", response.data); 
+                    const { currentRides, pastRides }: ApiResponse = response.data; 
 
-                        setCurrentRide(currentRide);
-                        setPastRides(pastRides);
-                    })
-                    .catch((error) => {
-                        console.error('Failed to fetch rides:', error.response?.data || error.message);
-                    });
-            } else {
-                console.warn("User ID is not available."); // Log only if user is defined but ID is not
-            }
+                    // Set currentRides with the correct structure
+                    setCurrentRides(currentRides.map(ride => ({ 
+                        _id: ride._id, // Use _id directly from the API
+                        pickupLocation: ride.pickupLocation,
+                        dropoffLocation: ride.dropoffLocation,
+                        rideType: ride.rideType,
+                        status: ride.status,
+                        bookedAt: ride.bookedAt,
+                    })));
+                    setPastRides(pastRides);
+                })
+                .catch((error) => {
+                    console.error('Failed to fetch rides:', error.response?.data || error.message);
+                });
+        } else {
+            console.warn("User ID is not available."); 
         }
-    }, [user]);
+    }, [user]); 
+
+    const handleAcceptRide = (rideId: string) => {
+        // Handle ride acceptance logic here
+        console.log("Accepting ride with ID:", rideId);
+        axios.put('/api/enroute', { rideId }).then((response) => {
+            console.log("Ride accepted successfully:", response.data);
+        }).catch((error) => {
+            console.error('Failed to accept ride:', error.response?.data || error.message);
+        })
+        // You can make an API call to accept the ride
+    };
 
     return (
         <div className="flex flex-col lg:flex-row h-screen bg-gradient-to-r from-black to-gray-900">
@@ -85,13 +97,24 @@ const RiderDashboard: React.FC = () => {
 
                 {/* Current Rides Section */}
                 <div className="bg-gray-700 p-6 rounded-lg shadow-lg mb-8">
-                    <h2 className="text-2xl text-white mb-4">Current Ride</h2>
-                    {currentRide ? (
-                        <div className="bg-gray-600 p-4 rounded-lg mb-4 shadow transition duration-300 hover:bg-gray-500">
-                            <h3 className="text-xl text-white font-semibold">{currentRide.destination}</h3>
-                            <p className="text-gray-300">Pickup Location: {currentRide.pickupLocation}</p>
-                            <p className="text-gray-300">Status: {currentRide.status}</p>
-                        </div>
+                    <h2 className="text-2xl text-white mb-4">Current Rides</h2>
+                    {currentRides.length > 0 ? (
+                        currentRides.map((ride) => (
+                            <div key={ride._id} className="bg-gray-600 p-4 rounded-lg mb-4 shadow transition duration-300 hover:bg-gray-500 flex justify-between items-center">
+                                <div className="flex flex-col">
+                                    <h3 className="text-xl text-white font-semibold">{ride.dropoffLocation}</h3>
+                                    <p className="text-gray-300">Pickup Location: {ride.pickupLocation}</p>
+                                    <p className="text-gray-300">Status: {ride.status}</p>
+                                    <p className="text-gray-300">Ride Type: {ride.rideType}</p>
+                                </div>
+                                <button 
+                                    onClick={() => handleAcceptRide(ride._id)} 
+                                    className="bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-500 transition duration-300 ml-4"
+                                >
+                                    Accept
+                                </button>
+                            </div>
+                        ))
                     ) : (
                         <p className="text-gray-300">No current rides available.</p>
                     )}
@@ -102,10 +125,10 @@ const RiderDashboard: React.FC = () => {
                     <h2 className="text-2xl text-white mb-4">Past Rides</h2>
                     {pastRides.length > 0 ? (
                         pastRides.map((ride) => (
-                            <div key={ride.id} className="bg-gray-600 p-4 rounded-lg mb-4 shadow transition duration-300 hover:bg-gray-500">
-                                <h3 className="text-xl text-white font-semibold">{ride.destination}</h3>
+                            <div key={ride._id} className="bg-gray-600 p-4 rounded-lg mb-4 shadow transition duration-300 hover:bg-gray-500">
+                                <h3 className="text-xl text-white font-semibold">{ride.dropoffLocation}</h3>
                                 <p className="text-gray-300">Pickup Location: {ride.pickupLocation}</p>
-                                <p className="text-gray-300">Date: {new Date(ride.completedAt || '').toLocaleDateString()}</p>
+                                <p className="text-gray-300">Date: {new Date(ride.bookedAt).toLocaleDateString()}</p>
                                 <p className="text-gray-300">Status: Completed</p>
                             </div>
                         ))

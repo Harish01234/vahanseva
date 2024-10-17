@@ -31,12 +31,15 @@ export async function POST(request: NextRequest) {
         }
 
         // Categorize rides into current and past
-        const currentRide = rides.find(ride => ride.status !== 'Completed');
+        const currentRides = rides.filter(ride => ride.status !== 'Completed'); // Returns all ongoing rides
+        console.log("Current rides:", currentRides);
+        
         const pastRides = rides.filter(ride => ride.status === 'Completed');
-
+        console.log("Past rides:", pastRides);
+        
         return NextResponse.json({
             message: 'Rides fetched successfully',
-            currentRide: currentRide || null,
+            currentRides,   // Return all ongoing rides as an array
             pastRides,
         }, { status: 200 });
     } catch (error: any) {

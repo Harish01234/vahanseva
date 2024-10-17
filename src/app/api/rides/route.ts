@@ -39,24 +39,36 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: error.message }, { status: 500 });
     }
 }
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export async function GET(request: NextRequest) {
     try {
         const url = new URL(request.url);
-        const customerId = url.searchParams.get('customerId'); // Optional query param
+        const customerId = url.searchParams.get('customerId');
 
-        // Fetch available rides (e.g., rides with 'Pending' status)
-        const query: any = { status: 'Pending' };
+        // Build the query for rides with 'Pending' status
+        const query: Record<string, any> = { status: 'Pending' };
+
+        // If customerId is provided, add it to the query
         if (customerId) {
-            query.customerId = customerId; // Filter by customer ID if provided
+            query.customerId = customerId; // Ensure customerId is valid if necessary
         }
 
+        // Fetch rides based on the query
         const availableRides = await RideModel.find(query);
 
-        return NextResponse.json(availableRides, { status: 200 });
-    } catch (error: any) {
+        // Check if rides are available and return them
+        if (availableRides.length === 0) {
+            return NextResponse.json({ message: 'No pending rides found' }, { status: 200 });
+        }
+
+        return NextResponse.json({ rides: availableRides }, { status: 200 });
+    } catch (error: unknown) {
         console.error("Error fetching rides:", error);
-        return NextResponse.json({ error: error.message }, { status: 500 });
+
+        // Ensure error response is consistent
+        if (error instanceof Error) {
+            return NextResponse.json({ error: error.message }, { status: 500 });
+        } else {
+            return NextResponse.json({ error: 'Unknown error occurred' }, { status: 500 });
+        }
     }
 }
